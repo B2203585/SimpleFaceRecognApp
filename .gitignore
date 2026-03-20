@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+dataset/
+*.joblib
+.vscode/
+.idea/
+.dockerignore
+Dockerfile
+docker-volumes/
+*.log
