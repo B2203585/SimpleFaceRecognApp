@@ -49,6 +49,6 @@ def auto_train(dataset_dir="dataset"):
     label_encoder = LabelEncoder()
     y_encoded = label_encoder.fit_transform(y_data)
 
-    model = KNeighborsClassifier(n_neighbors=3)
+    model = KNeighborsClassifier(n_neighbors=3, weights='distance', metric='euclidean')
     model.fit(x_data, y_encoded)
     return model, label_encoder

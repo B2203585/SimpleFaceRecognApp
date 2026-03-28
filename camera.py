@@ -87,11 +87,13 @@ def run_live_recognition(placeholder):
     cap = cv2.VideoCapture(0)
     cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
     buffer = deque(maxlen=15)
+    
+    # Set the distance threshold
+    DIST_THRESHOLD = 0.6 
 
     while st.session_state.run_cam:
         ret, frame = cap.read()
-        if not ret:
-            break
+        if not ret: break
 
         display = frame.copy()
         gray_full = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -101,14 +103,25 @@ def run_live_recognition(placeholder):
         for (x, y, w, h) in faces:
             start_t = time.perf_counter()
             feat = extract_hog(gray_full[y : y + h, x : x + w])[None, :]
-            pred_id = clf.predict(feat)[0]
-            label = label_encoder.inverse_transform([pred_id])[0]
+            
+            dists, indices = clf.kneighbors(feat, n_neighbors=1)
+            min_dist = dists[0][0]
+            
+            if min_dist < DIST_THRESHOLD:
+                pred_id = clf.predict(feat)[0]
+                label = label_encoder.inverse_transform([pred_id])[0]
+                color = (255, 0, 0)
+            else:
+                label = "Unknown"
+                color = (0, 0, 255)
+
             pred_time = (time.perf_counter() - start_t) * 1000
             buffer.append(label)
             voted_label = Counter(buffer).most_common(1)[0][0]
 
-            cv2.rectangle(display, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            cv2.putText(display, f"{voted_label} ({pred_time:.1f}ms)", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
+            cv2.rectangle(display, (x, y), (x + w, y + h), color, 2)
+            cv2.putText(display, f"{voted_label} ({min_dist:.2f})", (x, y - 10), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
 
         status_msg = "STATUS: Face Detected" if face_detected else "STATUS: Searching..."
         cv2.putText(display, status_msg, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
