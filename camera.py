@@ -89,7 +89,7 @@ def run_live_recognition(placeholder):
     buffer = deque(maxlen=15)
     
     # Set the distance threshold
-    DIST_THRESHOLD = 0.6 
+    DIST_THRESHOLD = 6.0 
 
     while st.session_state.run_cam:
         ret, frame = cap.read()

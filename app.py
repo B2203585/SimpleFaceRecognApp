@@ -1,8 +1,6 @@
 import streamlit as st
-
 from camera import run_data_collection, run_live_recognition
-from ui import init_state, render_idle_camera, render_layout, setup_page
-
+from ui import init_state, render_viewer, render_layout, setup_page
 
 def main():
     setup_page()
@@ -12,7 +10,7 @@ def main():
     placeholder = ui_data["placeholder"]
 
     if not st.session_state.run_cam:
-        render_idle_camera(placeholder)
+        render_viewer(placeholder)
         return
 
     if ui_data["mode"] == "Lấy hình":
@@ -21,7 +19,6 @@ def main():
 
     if ui_data["mode"] == "Nhận diện":
         run_live_recognition(placeholder)
-
 
 if __name__ == "__main__":
     main()
