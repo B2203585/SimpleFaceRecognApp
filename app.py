@@ -18,7 +18,7 @@ def main():
         return
 
     if ui_data["mode"] == "Nhận diện":
-        run_live_recognition(placeholder)
+        run_live_recognition(placeholder, ui_data["model_type"])
 
 if __name__ == "__main__":
     main()

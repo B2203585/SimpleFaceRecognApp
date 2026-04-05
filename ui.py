@@ -31,7 +31,6 @@ def setup_page():
 def init_state():
     if "mode" not in st.session_state: st.session_state.mode = "Lấy hình"
     if "run_cam" not in st.session_state: st.session_state.run_cam = False
-
     if "active_cls" not in st.session_state: st.session_state.active_cls = None
 
 def render_layout():
@@ -52,6 +51,8 @@ def render_layout():
 
             st.divider()
 
+            model_type = "KNN" # Khởi tạo mặc định
+            
             if st.session_state.mode == "Lấy hình":
                 st.write("**Cấu hình lấy dữ liệu**")
                 person_name = st.text_input("Tên định danh (Class):", "User_A")
@@ -59,7 +60,7 @@ def render_layout():
                 if not st.session_state.run_cam:
                     if st.button("MỞ CAMERA CHỤP", use_container_width=True): 
                         st.session_state.run_cam = True
-                        st.session_state.active_cls = None # Tắt xem ảnh khi chụp
+                        st.session_state.active_cls = None
                         st.rerun()
                 else:
                     if st.button("DỪNG VÀ LƯU DỮ LIỆU", use_container_width=True):
@@ -87,7 +88,6 @@ def render_layout():
 
                     if is_active:
                         with st.container(border=True):
-
                             new_name = st.text_input("Đổi tên thành:", cls, key=f"edit_{cls}")
                             if new_name != cls and new_name.strip() != "":
                                 os.rename(cls_path, os.path.join(dataset_dir, new_name.strip()))
@@ -105,6 +105,11 @@ def render_layout():
             else:
                 st.session_state.active_cls = None
                 st.write("**Cấu hình nhận diện**")
+                
+                # --- CHỌN MODEL Ở ĐÂY ---
+                model_type = st.radio("Chọn Thuật toán Nhận diện:", ["KNN", "SVM"], horizontal=True)
+                
+                st.caption("Model sẽ chỉ Train lại khi dữ liệu có sự thay đổi.")
                 if not st.session_state.run_cam:
                     if st.button("BẮT ĐẦU NHẬN DIỆN", use_container_width=True):
                         st.session_state.run_cam = True
@@ -123,6 +128,7 @@ def render_layout():
         "mode": st.session_state.mode,
         "person_name": person_name if st.session_state.mode == "Lấy hình" else "User_A",
         "max_img": max_img if st.session_state.mode == "Lấy hình" else 200,
+        "model_type": model_type # Trả về loại model
     }
 
 def render_viewer(placeholder):
